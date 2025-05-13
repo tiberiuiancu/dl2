@@ -1,8 +1,8 @@
 # added by tibi
-*.sif # exclude build
-**/*.zip # exclude data
-instructions/ # exclude peract instructions
-drema_dataset/ # exclude training data
+*.sif
+**/*.zip
+instructions/
+drema_dataset/
 
 # added by original authors
 PyRep/CoppeliaSim_Edu_V4_1_0_Ubuntu20_04/
