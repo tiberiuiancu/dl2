@@ -1,0 +1,63 @@
+Bootstrap: docker
+#From: nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
+From: nvidia/cuda:12.8.1-runtime-ubuntu24.04
+
+%environment
+    # Add CUDA and Conda to the environment
+    export PATH=/opt/miniconda/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+    export CONDA_DEFAULT_ENV=dl2
+    export CUDA_HOME=/usr/local/cuda
+    export COPPELIASIM_ROOT=/opt/CoppeliaSim
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$COPPELIASIM_ROOT
+    export QT_QPA_PLATFORM_PLUGIN_PATH=$COPPELIASIM_ROOT
+    export DISPLAY=:99
+
+%files
+    . /app
+
+%post
+    apt update
+    apt install -y libgl1 libglib2.0-0 libsm6 libxrender1 libxext6 libopencv-dev libomp-dev libboost-all-dev python3-dev build-essential cmake git wget unzip xorg libxcb-randr0-dev libxrender-dev libxkbcommon-dev libxkbcommon-x11-0 libavcodec-dev libavformat-dev libswscale-dev software-properties-common xvfb
+    
+    # install nvidia-xconfig for later rlbench setup
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-ubuntu2404.pin
+    mv cuda-ubuntu2404.pin /etc/apt/preferences.d/cuda-repository-pin-600
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub
+    add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/ /"
+    apt install -y nvidia-driver-565
+    
+    # rlbench headless setup
+    nvidia-xconfig -a --virtual=1280x1024
+    echo -e 'Section "ServerFlags"\n\tOption "MaxClients" "2048"\nEndSection\n' | sudo tee /etc/X11/xorg.conf.d/99-maxclients.conf
+    export DISPLAY=:99
+
+    # Install Miniconda
+    mkdir -p /opt/miniconda
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /opt/miniconda/miniconda.sh
+    bash /opt/miniconda/miniconda.sh -b -u -p /opt/miniconda
+    rm /opt/miniconda/miniconda.sh
+
+    # Initialize Conda
+    /opt/miniconda/bin/conda init bash
+
+    cd /app
+    /opt/miniconda/bin/conda env create -f environment.yaml
+
+    # Install pip dependencies, including CUDA-enabled PyTorch
+    /opt/miniconda/envs/dl2/bin/pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+    # Install Coppeliasim and rlbench
+    export COPPELIASIM_ROOT=/opt/CoppeliaSim
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$COPPELIASIM_ROOT
+    export QT_QPA_PLATFORM_PLUGIN_PATH=$COPPELIASIM_ROOT
+    wget https://downloads.coppeliarobotics.com/V4_1_0/CoppeliaSim_Edu_V4_1_0_Ubuntu20_04.tar.xz
+    mkdir -p $COPPELIASIM_ROOT && tar -xf CoppeliaSim_Edu_V4_1_0_Ubuntu20_04.tar.xz -C $COPPELIASIM_ROOT --strip-components 1
+    rm -rf CoppeliaSim_Edu_V4_1_0_Ubuntu20_04.tar.xz
+
+    /opt/miniconda/envs/dl2/bin/pip install git+https://github.com/stepjam/RLBench.git
+    /opt/miniconda/envs/dl2/bin/pip install gymnasium open3d
+
+    # Test installation
+    /opt/miniconda/envs/dl2/bin/python -c 'import torch; print(torch.cuda.is_available()); import rlbench; import open3d; import pyrep;'
+
