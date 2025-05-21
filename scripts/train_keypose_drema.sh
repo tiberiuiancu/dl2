@@ -17,13 +17,13 @@ quaternion_format=xyzw
 
 CUDA_LAUNCH_BLOCKING=1 MASTER_ADDR=localhost MASTER_PORT=3456 RANK=0 WORLD_SIZE=1 torchrun --nproc_per_node $ngpus --master_port 3456 \
     main_trajectory.py \
-    --tasks close_jar \
+    --tasks pick_up_cup \
     --dataset $dataset \
     --valset $dataset \
     --instructions instructions/peract/instructions.pkl \
     --gripper_loc_bounds tasks/18_peract_tasks_location_bounds.json \
     --num_workers 1 \
-    --train_iters 50 \
+    --train_iters 100000 \
     --embedding_dim $C \
     --use_instruction 1 \
     --rotation_parametrization 6D \
@@ -36,11 +36,11 @@ CUDA_LAUNCH_BLOCKING=1 MASTER_ADDR=localhost MASTER_PORT=3456 RANK=0 WORLD_SIZE=
     --cache_size 600 \
     --cache_size_val 0 \
     --keypose_only 1 \
-    --lr $lr\
+    --lr $lr \
     --num_history $num_history \
-    --cameras left_shoulder right_shoulder wrist front\
+    --cameras left_shoulder right_shoulder front\
     --max_episodes_per_task -1 \
     --quaternion_format $quaternion_format \
-    --variations {0..199} \
-    --val_freq 25
+    --variations {0..3} \
+    --val_freq 5000
 

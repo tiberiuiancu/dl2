@@ -1,4 +1,5 @@
-dataset=~/3d_diffuser_actor/drema_dataset
+#dataset=~/3d_diffuser_actor/drema_dataset
+dataset=/scratch-shared/scur2616/three_augmentations_w_original/train/
 outdir=/scratch-shared/scur2616/runs/testrun/exp/run/best.pth
 
 exp=drema
@@ -14,7 +15,8 @@ max_tries=2
 verbose=1
 single_task_gripper_loc_bounds=0
 embedding_dim=120
-cameras="left_shoulder,right_shoulder,wrist,front"
+# removed the wrist
+cameras="left_shoulder,right_shoulder,front"
 seed=0
 checkpoint=$outdir
 

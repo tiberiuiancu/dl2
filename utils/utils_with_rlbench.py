@@ -230,7 +230,7 @@ class Actioner:
                 run_inference=True
             )
         else:
-            print('Predict Keypose')
+            '''print('Predict Keypose')
             pred = self._policy(
                 rgbs[:, -1],
                 pcds[:, -1],
@@ -238,6 +238,30 @@ class Actioner:
                 gripper[:, -1, :self._action_dim],
             )
             # Hackish, assume self._policy is an instance of Act3D
+            output["action"] = self._policy.prepare_action(pred)'''
+            print('Predict Keypose')
+            
+            # build a dummy trajectory + mask so that forward() gets all its args
+            batch_size = rgbs.shape[0]
+            fake_traj = torch.zeros(
+                (batch_size, interpolation_length-1, gripper.shape[-1]),
+                device=rgbs.device
+            )
+            traj_mask = torch.zeros(
+                (batch_size, interpolation_length-1),
+                dtype=torch.bool,
+                device=rgbs.device
+            )
+            # now call forward with the full signature
+            pred = self._policy(
+                fake_traj,
+                traj_mask,
+                rgbs[:, -1],
+                pcds[:, -1],
+                self._instr,
+                gripper[:, -1, :self._action_dim],
+                run_inference=False
+            )
             output["action"] = self._policy.prepare_action(pred)
 
         return output

@@ -26,7 +26,8 @@ From: nvidia/cuda:12.1.1-runtime-ubuntu22.04
  
     cd /app    
     /usr/bin/pip install --no-cache-dir -r requirements.txt
-    /usr/bin/pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+    /usr/bin/pip install --no-cache-dir dgl -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
 
     # Install Coppeliasim
     export COPPELIASIM_ROOT=/opt/CoppeliaSim
