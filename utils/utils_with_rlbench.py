@@ -88,11 +88,13 @@ class Mover:
         reward = 0
 
         for try_id in range(self._max_tries):
-            action_collision = np.ones(action.shape[0]+1)
-            action_collision[:-1] = action
-            if collision_checking:
-                action_collision[-1] = 0
-            obs, reward, terminate = self._task.step(action_collision)
+            # DL2: attempt to fix action dimension problem
+            #action_collision = np.ones(action.shape[0]+1)
+            #action_collision[:-1] = action
+            #if collision_checking:
+            #    action_collision[-1] = 0
+            #obs, reward, terminate = self._task.step(action_collision)
+            obs, reward, terminate = self._task.step(action)
 
             pos = obs.gripper_pose[:3]
             rot = obs.gripper_pose[3:7]
@@ -114,11 +116,12 @@ class Mover:
             and self._last_action is not None
             and action[7] != self._last_action[7]
         ):
-            action_collision = np.ones(action.shape[0]+1)
-            action_collision[:-1] = action
-            if collision_checking:
-                action_collision[-1] = 0
-            obs, reward, terminate = self._task.step(action_collision)
+            # action_collision = np.ones(action.shape[0]+1)
+            # action_collision[:-1] = action
+            # if collision_checking:
+            #     action_collision[-1] = 0
+            # obs, reward, terminate = self._task.step(action_collision)
+            obs, reward, terminate = self._task.step(action)
 
         if try_id == self._max_tries:
             print(f"Failure after {self._max_tries} tries")
@@ -213,7 +216,6 @@ class Actioner:
 
         # Predict trajectory
         if self._predict_trajectory:
-            print('Predict Trajectory')
             fake_traj = torch.full(
                 [1, interpolation_length - 1, gripper.shape[-1]], 0
             ).to(rgbs.device)
@@ -610,7 +612,7 @@ class RLBenchEnv:
                     if terminate:
                         print("The episode has terminated!")
 
-                except (IKError, ConfigurationPathError, InvalidActionError) as e:
+                except (IKError, ConfigurationPathError) as e:
                     print(task_str, demo, step_id, success_rate, e)
                     reward = 0
                     #break

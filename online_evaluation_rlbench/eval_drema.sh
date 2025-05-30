@@ -1,11 +1,16 @@
 #dataset=~/3d_diffuser_actor/drema_dataset
 dataset=/scratch-shared/scur2616/three_augmentations_w_original/train/
-outdir=/scratch-shared/scur2616/runs/testrun/exp/run/best.pth
+outdir=/scratch-shared/scur2616/runs/train_block_keypose1/exp/run-20250526-172216/best.pth
+
+# FIX COPPELIA?????i
+Xvfb :99 -screen 0 1280x1024x24 &
+export QT_QPA_PLATFORM=xcb
+export LIBGL_ALWAYS_SOFTWARE=1
 
 exp=drema
 
 tasks=(
-    close_jar
+    slide_block_to_target
 )
 data_dir=$dataset
 num_episodes=100
@@ -22,10 +27,10 @@ checkpoint=$outdir
 
 num_ckpts=${#tasks[@]}
 for ((i=0; i<$num_ckpts; i++)); do
-    QT_QPA_PLATFORM=offscreen \
     DISPLAY=:99 \
     CUDA_LAUNCH_BLOCKING=1 PYTHONPATH=. python online_evaluation_rlbench/evaluate_policy.py \
     --tasks ${tasks[$i]} \
+    --device cuda:0 \
     --headless 1 \
     --checkpoint $checkpoint \
     --num_history 3 \
@@ -34,7 +39,7 @@ for ((i=0; i<$num_ckpts; i++)); do
     --verbose $verbose \
     --action_dim 8 \
     --collision_checking 0 \
-    --predict_trajectory 0 \
+    --predict_trajectory 1 \
     --embedding_dim $embedding_dim \
     --rotation_parametrization "6D" \
     --single_task_gripper_loc_bounds $single_task_gripper_loc_bounds \
@@ -48,6 +53,7 @@ for ((i=0; i<$num_ckpts; i++)); do
     --max_steps 25 \
     --seed $seed \
     --gripper_loc_bounds_file $gripper_loc_bounds_file \
-    --gripper_loc_bounds_buffer 0.04
+    --gripper_loc_bounds_buffer 0.04 \
+    --verbose 1
 done
 
