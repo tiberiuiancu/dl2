@@ -1,7 +1,9 @@
 main_dir=Actor_18Peract_100Demo_multitask
 
-dataset=data/peract/Peract_packaged/train
-valset=data/peract/Peract_packaged/val
+dataset=/scratch-shared/scur2616/Peract_packaged/train
+valset=/scratch-shared/scur2616/Peract_packaged/val
+
+outdir_baseline=/scratch-shared/scur2616/runs/train_block_baseline1
 
 lr=1e-4
 dense_interpolation=1
@@ -10,12 +12,12 @@ num_history=3
 diffusion_timesteps=100
 B=8
 C=120
-ngpus=6
+ngpus=1
 quaternion_format=xyzw
 
 CUDA_LAUNCH_BLOCKING=1 torchrun --nproc_per_node $ngpus --master_port $RANDOM \
     main_trajectory.py \
-    --tasks place_cups close_jar insert_onto_square_peg light_bulb_in meat_off_grill open_drawer place_shape_in_shape_sorter place_wine_at_rack_location push_buttons put_groceries_in_cupboard put_item_in_drawer put_money_in_safe reach_and_drag slide_block_to_color_target stack_blocks stack_cups sweep_to_dustpan_of_size turn_tap \
+    --tasks slide_block_to_color_target \
     --dataset $dataset \
     --valset $valset \
     --instructions instructions/peract/instructions.pkl \
