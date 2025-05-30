@@ -12,6 +12,14 @@ The training and evaluation should be run in Apptainer (formerly Singularity) fo
 ```
 This results in a container file under `singularity.sif` that comes with all requirements (for training and online evaluation) preinstalled.
 
+# Running
+
+To train the model, see `scripts/train_keypose_drema.sh`. For evaluation, see `online_evaluation_rlbench/eval_drema.sh`. Note that these bash scripts should be run in apptainer:
+
+```bash
+> apptainer run --nv singularity.sif /bin/bash scripts/train_keypose_drema.sh
+```
+
 # Data Preparation
 
 Make sure to obtain the relevant datasets from the [3D Diffuser Actor Repository](https://huggingface.co/katefgroup/3d_diffuser_actor/tree/main) and from the [DreMa repository](https://github.com/nickgkan/3d_diffuser_actor). Then see [Preparing RLBench dataset](./docs/DATA_PREPARATION_RLBENCH.md) and [Preparing CALVIN dataset](./docs/DATA_PREPARATION_CALVIN.md).
