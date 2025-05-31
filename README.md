@@ -20,24 +20,89 @@ To train the model, see `scripts/train_keypose_drema.sh`. For evaluation, see `o
 > apptainer run --nv singularity.sif /bin/bash scripts/train_keypose_drema.sh
 ```
 
-# Data Preparation
 
-Make sure to obtain the relevant datasets from the [3D Diffuser Actor Repository](https://huggingface.co/katefgroup/3d_diffuser_actor/tree/main) and from the [DreMa repository](https://github.com/nickgkan/3d_diffuser_actor). Then see [Preparing RLBench dataset](./docs/DATA_PREPARATION_RLBENCH.md) and [Preparing CALVIN dataset](./docs/DATA_PREPARATION_CALVIN.md).
+## Reproducibility Task 
 
+Download the **PerAct** datasets:
 
-### (Optional) Encode language instructions
+* Training and validation data from the [PerAct repository](https://github.com/peract/peract)
+* Test data from the [PerAct pre-generated datasets](https://github.com/peract/peract?tab=readme-ov-file#pre-generated-datasets)
 
-We provide our scripts for encoding language instructions with CLIP Text Encoder on CALVIN.  Otherwise, you can find the encoded instructions on CALVIN and RLBench ([Link](https://huggingface.co/katefgroup/3d_diffuser_actor/blob/main/instructions.zip)).
+Place the datasets in the following directories:
+
 ```
-> python data_preprocessing/preprocess_calvin_instructions.py --output instructions/calvin_task_ABC_D/validation.pkl --model_max_length 16 --annotation_path ./calvin/dataset/task_ABC_D/validation/lang_annotations/auto_lang_ann.npy
-
-> python data_preprocessing/preprocess_calvin_instructions.py --output instructions/calvin_task_ABC_D/training.pkl --model_max_length 16 --annotation_path ./calvin/dataset/task_ABC_D/training/lang_annotations/auto_lang_ann.npy
+/scratch-shared/scur2616/Peract_packaged/train
+/scratch-shared/scur2616/Peract_packaged/validation
+/scratch-shared/scur2616/test3
 ```
 
-**Note:** We update our scripts for encoding language instructions on RLBench.
+
+## (Optional) Encode language instructions
+
+We provide scripts for encoding language instructions with CLIP Text Encoder on CALVIN. Otherwise, you can find the encoded instructions for CALVIN and RLBench [here](https://huggingface.co/katefgroup/3d_diffuser_actor/blob/main/instructions.zip).
+
+For encoding RLBench instructions:
+
 ```
-> python data_preprocessing/preprocess_rlbench_instructions.py  --tasks place_cups close_jar insert_onto_square_peg light_bulb_in meat_off_grill open_drawer place_shape_in_shape_sorter place_wine_at_rack_location push_buttons put_groceries_in_cupboard put_item_in_drawer put_money_in_safe reach_and_drag slide_block_to_color_target stack_blocks stack_cups sweep_to_dustpan_of_size turn_tap --output instructions.pkl
+python data_preprocessing/preprocess_rlbench_instructions.py  --tasks place_cups close_jar insert_onto_square_peg light_bulb_in meat_off_grill open_drawer place_shape_in_shape_sorter place_wine_at_rack_location push_buttons put_groceries_in_cupboard put_item_in_drawer put_money_in_safe reach_and_drag slide_block_to_color_target stack_blocks stack_cups sweep_to_dustpan_of_size turn_tap --output instructions.pkl
 ```
+
+### Preprocessing
+
+Run the following script to preprocess the PerAct data:
+
+```
+bash 3d_diffuser_actor/scripts/preprocess_peract.sh
+```
+
+### Training
+
+Train the model on the PerAct dataset using:
+
+```
+bash 3d_diffuser_actor/scripts/train_keypose_peract.sh
+```
+
+### Evaluation
+
+Evaluate the model on the PerAct dataset using:
+
+```
+bash 3d_diffuser_actor/online_evaluation_rlbench/eval_peract_debug.sh
+```
+
+---
+
+## Extension task: Running the model on DreMa dataset
+
+### Preprocessing
+
+Run the following scripts to preprocess the DreMa dataset:
+
+```
+bash 3d_diffuser_actor/scripts/preprocess_drema.sh
+bash 3d_diffuser_actor/scripts/package_drema.sh
+bash 3d_diffuser_actor/scripts/package_drema_train.sh
+```
+
+### Training
+
+Train the model on the DreMa dataset using:
+
+```
+bash 3d_diffuser_actor/scripts/train_keypose_drema.sh
+```
+
+### Evaluation
+
+Evaluate the model on the DreMa dataset using:
+
+```
+bash 3d_diffuser_actor/online_evaluation_rlbench/eval_drema_debug.sh
+```
+
+---
+
 
 # License
 This code base is released under the MIT License (refer to the LICENSE file for details).
